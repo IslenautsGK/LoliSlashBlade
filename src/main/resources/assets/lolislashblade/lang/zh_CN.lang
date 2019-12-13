@@ -1,3 +1,7 @@
 ﻿
 item.flammpfeil.slashblade.named.loliblade.name=§a萝§b莉§e之§d刃§c「终焉」
 flammpfeil.slashblade.specialattack.lolisword=§c萝莉斩
+commands.summonlolislashblade.usage=/summonlolislashblade <密码>
+commands.summonlolislashblade.success=召唤成功
+commands.summonlolislashblade.fail=召唤失败
+commands.summonlolislashblade.pwerrpr=密码错误

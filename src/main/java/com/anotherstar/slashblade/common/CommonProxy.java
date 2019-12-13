@@ -1,6 +1,7 @@
 package com.anotherstar.slashblade.common;
 
 import com.anotherstar.slashblade.LoliSlashBlade;
+import com.anotherstar.slashblade.common.command.LoliSlashBladeCommand;
 import com.anotherstar.slashblade.common.entity.EntityLoliBlisteringSwords;
 import com.anotherstar.slashblade.common.entity.EntityLoliHeavyRainSwords;
 import com.anotherstar.slashblade.common.entity.EntityLoliPhantomSwordBase;
@@ -27,26 +28,26 @@ import net.minecraftforge.common.MinecraftForge;
 public class CommonProxy {
 
 	public void preInit(FMLPreInitializationEvent event) {
-		if (Loader.isModLoaded("AnotherStar")) {
-			preInitAnotherStar(event);
+		if (Loader.isModLoaded("LoliPickaxe")) {
+			preInitLoliPickaxe(event);
 		}
 	}
 
-	@Optional.Method(modid = "AnotherStar")
-	private void preInitAnotherStar(FMLPreInitializationEvent event) {
+	@Optional.Method(modid = "LoliPickaxe")
+	private void preInitLoliPickaxe(FMLPreInitializationEvent event) {
 		SlashBlade.InitEventBus.register(new LoliLoadEvent());
 		ItemLoader.init();
 	}
 
 	public void init(FMLInitializationEvent event) {
-		if (Loader.isModLoaded("AnotherStar")) {
-			initAnotherStar(event);
+		if (Loader.isModLoaded("LoliPickaxe")) {
+			initLoliPickaxe(event);
 		}
 		MinecraftForge.EVENT_BUS.register(new SlashBladeColorEvent());
 	}
 
-	@Optional.Method(modid = "AnotherStar")
-	private void initAnotherStar(FMLInitializationEvent event) {
+	@Optional.Method(modid = "LoliPickaxe")
+	private void initLoliPickaxe(FMLInitializationEvent event) {
 		EntityRegistry.registerModEntity(EntityLoliSA.class, "LoliSA", 1, LoliSlashBlade.instance, 250, 200, true);
 		EntityRegistry.registerModEntity(EntityLoliSuperSA.class, "LoliSuperSA", 2, LoliSlashBlade.instance, 250, 10,
 				true);
@@ -69,6 +70,7 @@ public class CommonProxy {
 	}
 
 	public void onServerStarting(FMLServerStartingEvent event) {
+		event.registerServerCommand(new LoliSlashBladeCommand());
 	}
 
 }

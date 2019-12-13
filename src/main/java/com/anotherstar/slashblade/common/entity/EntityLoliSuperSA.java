@@ -27,8 +27,8 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
 @Optional.InterfaceList(value = {
-		@Interface(iface = "com.anotherstar.common.config.ConfigLoader", modid = "AnotherStar"),
-		@Interface(iface = "com.anotherstar.util.LoliPickaxeUtil", modid = "AnotherStar") })
+		@Interface(iface = "com.anotherstar.common.config.ConfigLoader", modid = "LoliPickaxe"),
+		@Interface(iface = "com.anotherstar.util.LoliPickaxeUtil", modid = "LoliPickaxe") })
 public class EntityLoliSuperSA extends EntityJudgmentCutManager {
 
 	public EntityLoliSuperSA(World world) {

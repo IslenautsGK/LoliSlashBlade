@@ -8,13 +8,12 @@ import mods.flammpfeil.slashblade.ItemRendererBaseWeapon;
 import net.minecraft.item.Item;
 import net.minecraftforge.client.MinecraftForgeClient;
 
-@Optional.Interface(iface = "com.anotherstar.common.item.tool.ILoli", modid = "AnotherStar")
+@Optional.Interface(iface = "com.anotherstar.common.item.tool.ILoli", modid = "LoliPickaxe")
 public class ItemLoader {
 
-	public static Item loliSlashBlade;
+	public final static Item loliSlashBlade = new ItemLoliSlashBlade();
 
 	public static void init() {
-		loliSlashBlade = new ItemLoliSlashBlade();
 		GameRegistry.registerItem(loliSlashBlade, "loliSlashBlade");
 	}
 

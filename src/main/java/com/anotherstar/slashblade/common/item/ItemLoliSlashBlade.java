@@ -27,7 +27,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 
-@Optional.Interface(iface = "com.anotherstar.common.item.tool.ILoli", modid = "AnotherStar")
+@Optional.Interface(iface = "com.anotherstar.common.item.tool.ILoli", modid = "LoliPickaxe")
 public class ItemLoliSlashBlade extends ItemSlashBladeNamed implements ILoli {
 
 	public ItemLoliSlashBlade() {

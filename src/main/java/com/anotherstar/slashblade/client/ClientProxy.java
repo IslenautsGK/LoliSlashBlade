@@ -28,26 +28,26 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	public void preInit(FMLPreInitializationEvent event) {
 		super.preInit(event);
-		if (Loader.isModLoaded("AnotherStar")) {
-			preInitAnotherStar(event);
+		if (Loader.isModLoaded("LoliPickaxe")) {
+			preInitLoliPickaxe(event);
 		}
 	}
 
-	@Optional.Method(modid = "AnotherStar")
-	private void preInitAnotherStar(FMLPreInitializationEvent event) {
+	@Optional.Method(modid = "LoliPickaxe")
+	private void preInitLoliPickaxe(FMLPreInitializationEvent event) {
 		ItemLoader.renderInit();
 	}
 
 	@Override
 	public void init(FMLInitializationEvent event) {
 		super.init(event);
-		if (Loader.isModLoaded("AnotherStar")) {
-			initAnotherStar(event);
+		if (Loader.isModLoaded("LoliPickaxe")) {
+			initLoliPickaxe(event);
 		}
 	}
 
-	@Optional.Method(modid = "AnotherStar")
-	private void initAnotherStar(FMLInitializationEvent event) {
+	@Optional.Method(modid = "LoliPickaxe")
+	private void initLoliPickaxe(FMLInitializationEvent event) {
 		RenderingRegistry.registerEntityRenderingHandler(EntityLoliSA.class, new RenderSlashDimension());
 		RenderingRegistry.registerEntityRenderingHandler(EntityLoliSuperSA.class, new RenderDrive());
 		RenderingRegistry.registerEntityRenderingHandler(EntityLoliPhantomSwordBase.class,

@@ -22,8 +22,8 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 @Optional.InterfaceList(value = {
-		@Interface(iface = "com.anotherstar.common.config.ConfigLoader", modid = "AnotherStar"),
-		@Interface(iface = "com.anotherstar.util.LoliPickaxeUtil", modid = "AnotherStar") })
+		@Interface(iface = "com.anotherstar.common.config.ConfigLoader", modid = "LoliPickaxe"),
+		@Interface(iface = "com.anotherstar.util.LoliPickaxeUtil", modid = "LoliPickaxe") })
 public class EntityLoliBlisteringSwords extends EntityBlisteringSwords {
 
 	public EntityLoliBlisteringSwords(World world) {
