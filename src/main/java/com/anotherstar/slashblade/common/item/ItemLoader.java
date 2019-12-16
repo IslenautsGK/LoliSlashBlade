@@ -1,25 +1,33 @@
 package com.anotherstar.slashblade.common.item;
 
-import cpw.mods.fml.common.Optional;
-import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import mods.flammpfeil.slashblade.ItemRendererBaseWeapon;
-import net.minecraft.item.Item;
-import net.minecraftforge.client.MinecraftForgeClient;
+import com.anotherstar.slashblade.LoliSlashBlade;
 
-@Optional.Interface(iface = "com.anotherstar.common.item.tool.ILoli", modid = "LoliPickaxe")
+import mods.flammpfeil.slashblade.tileentity.DummyTileEntity;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.item.Item;
+import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+
 public class ItemLoader {
 
 	public final static Item loliSlashBlade = new ItemLoliSlashBlade();
 
-	public static void init() {
-		GameRegistry.registerItem(loliSlashBlade, "loliSlashBlade");
+	@SubscribeEvent
+	public void registerItem(RegistryEvent.Register<Item> event) {
+		event.getRegistry().register(loliSlashBlade.setRegistryName(LoliSlashBlade.MODID, "loli_slash_blade"));
 	}
 
+	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
-	public static void renderInit() {
-		MinecraftForgeClient.registerItemRenderer(loliSlashBlade, new ItemRendererBaseWeapon());
+	public void registerModel(ModelRegistryEvent event) {
+		ModelLoader.setCustomModelResourceLocation(loliSlashBlade, 0,
+				new ModelResourceLocation("flammpfeil.slashblade:model/named/blade.obj"));
+		ForgeHooksClient.registerTESRItemStack(loliSlashBlade, 0, DummyTileEntity.class);
 	}
 
 }

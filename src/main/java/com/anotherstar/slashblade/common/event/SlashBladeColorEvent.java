@@ -1,8 +1,9 @@
 package com.anotherstar.slashblade.common.event;
 
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import mods.flammpfeil.slashblade.ItemSlashBlade;
+import com.anotherstar.slashblade.LoliSlashBlade;
+
 import mods.flammpfeil.slashblade.entity.EntityBladeStand;
+import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.item.Item;
@@ -10,26 +11,29 @@ import net.minecraft.item.ItemDye;
 import net.minecraft.item.ItemNameTag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumHand;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class SlashBladeColorEvent {
 
 	@SubscribeEvent
 	public void onAttack(AttackEntityEvent event) {
-		if (!event.entityPlayer.worldObj.isRemote) {
-			ItemStack stack = event.entityPlayer.getCurrentEquippedItem();
+		if (!event.getEntityPlayer().world.isRemote) {
+			ItemStack stack = event.getEntityPlayer().getHeldItemMainhand();
 			if (stack != null) {
 				Item item = stack.getItem();
-				if (event.target instanceof EntityBladeStand) {
-					EntityBladeStand stand = (EntityBladeStand) event.target;
+				if (event.getTarget() instanceof EntityBladeStand) {
+					EntityBladeStand stand = (EntityBladeStand) event.getTarget();
 					if (stand.hasBlade()) {
 						ItemStack blade = stand.getBlade();
-						int level = EnchantmentHelper.getEnchantmentLevel(Enchantment.power.effectId, blade);
+						int level = EnchantmentHelper.getEnchantmentLevel(Enchantment.getEnchantmentByID(48), blade);
 						if (level > 0) {
 							int color = 0;
 							boolean changeColor = false;
 							if (item instanceof ItemDye) {
-								color = ItemDye.field_150922_c[stack.getItemDamage()];
+								color = ItemDye.DYE_COLORS[stack.getItemDamage()];
 								changeColor = true;
 							} else if (item instanceof ItemNameTag) {
 								String name = stack.getDisplayName();
@@ -58,11 +62,10 @@ public class SlashBladeColorEvent {
 								} else {
 									ItemSlashBlade.SummonedSwordColor.set(bladeTag, color);
 								}
-								event.entityPlayer.onCriticalHit(stand);
-								stack.stackSize--;
-								if (stack.stackSize <= 0) {
-									event.entityPlayer.destroyCurrentEquippedItem();
-									event.entityPlayer.setCurrentItemOrArmor(0, (ItemStack) null);
+								event.getEntityPlayer().onCriticalHit(stand);
+								stack.shrink(1);
+								if (stack.getCount() <= 0) {
+									event.getEntityPlayer().setHeldItem(EnumHand.MAIN_HAND, ItemStack.EMPTY);
 								}
 							}
 						}

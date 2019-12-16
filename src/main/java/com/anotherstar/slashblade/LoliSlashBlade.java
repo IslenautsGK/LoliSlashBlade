@@ -2,44 +2,46 @@ package com.anotherstar.slashblade;
 
 import com.anotherstar.slashblade.common.CommonProxy;
 
-import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.Mod.EventHandler;
-import cpw.mods.fml.common.Mod.Instance;
-import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 
-@Mod(modid = LoliSlashBlade.MODID, name = LoliSlashBlade.NAME, version = LoliSlashBlade.VERSION, acceptedMinecraftVersions = "1.7.10", dependencies = "required-after:flammpfeil.slashblade")
-public class LoliSlashBlade {
+@Mod(modid = LoliSlashBlade.MODID, name = LoliSlashBlade.NAME, version = LoliSlashBlade.VERSION, useMetadata = true, dependencies = "required-after:flammpfeil.slashblade")
+public enum LoliSlashBlade {
 
-	public static final String MODID = "LoliSlashBlade";
-	public static final String NAME = "LoliSlashBlade Mod";
+	INSTANCE;
+
+	public static final String MODID = "lolislashblade";
+	public static final String NAME = "LoliSlashBlade";
 	public static final String VERSION = "1.0.3";
 
-	@SidedProxy(clientSide = "com.anotherstar.slashblade.client.ClientProxy", serverSide = "com.anotherstar.slashblade.common.CommonProxy")
+	@SidedProxy(serverSide = "com.anotherstar.slashblade.common.CommonProxy", clientSide = "com.anotherstar.slashblade.client.ClientProxy")
 	public static CommonProxy proxy;
 
-	@Instance(LoliSlashBlade.MODID)
-	public static LoliSlashBlade instance;
+	@Mod.InstanceFactory
+	public static LoliSlashBlade getInstance() {
+		return INSTANCE;
+	}
 
-	@EventHandler
+	@Mod.EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
 		proxy.preInit(event);
 	}
 
-	@EventHandler
+	@Mod.EventHandler
 	public void init(FMLInitializationEvent event) {
 		proxy.init(event);
 	}
 
-	@EventHandler
+	@Mod.EventHandler
 	public void postInit(FMLPostInitializationEvent event) {
 		proxy.postInit(event);
 	}
 
-	@EventHandler
+	@Mod.EventHandler
 	public void onServerStarting(FMLServerStartingEvent event) {
 		proxy.onServerStarting(event);
 	}

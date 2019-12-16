@@ -2,22 +2,24 @@ package com.anotherstar.slashblade.common.entity;
 
 import java.util.List;
 
+import com.anotherstar.common.LoliPickaxe;
 import com.anotherstar.common.config.ConfigLoader;
 import com.anotherstar.util.LoliPickaxeUtil;
 
-import cpw.mods.fml.common.Optional;
-import cpw.mods.fml.common.Optional.Interface;
-import mods.flammpfeil.slashblade.EntityDrive;
+import mods.flammpfeil.slashblade.entity.EntityDrive;
 import mods.flammpfeil.slashblade.entity.EntitySlashDimension;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.init.SoundEvents;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.Optional;
+import net.minecraftforge.fml.common.Optional.Interface;
 
 @Optional.InterfaceList(value = {
-		@Interface(iface = "com.anotherstar.common.config.ConfigLoader", modid = "LoliPickaxe"),
-		@Interface(iface = "com.anotherstar.util.LoliPickaxeUtil", modid = "LoliPickaxe") })
+		@Interface(iface = "com.anotherstar.common.config.ConfigLoader", modid = LoliPickaxe.MODID),
+		@Interface(iface = "com.anotherstar.util.LoliPickaxeUtil", modid = LoliPickaxe.MODID) })
 public class EntityLoliSA extends EntitySlashDimension {
 
 	public EntityLoliSA(World world) {
@@ -37,18 +39,21 @@ public class EntityLoliSA extends EntitySlashDimension {
 
 	@Override
 	public void onUpdate() {
+		if (!this.world.isRemote) {
+			this.setFlag(6, this.isGlowing());
+		}
 		this.onEntityUpdate();
 		lastTickPosX = posX;
 		lastTickPosY = posY;
 		lastTickPosZ = posZ;
-		if (!worldObj.isRemote) {
+		if (!world.isRemote) {
 			if (ticksExisted < 8 && ticksExisted % 2 == 0) {
-				this.playSound("mob.wither.hurt", 0.2F, 0.5F + 0.25f * this.rand.nextFloat());
+				this.playSound(SoundEvents.ENTITY_WITHER_HURT, 0.2F, 0.5F + 0.25f * this.rand.nextFloat());
 			}
-			AxisAlignedBB bb = this.boundingBox;
+			AxisAlignedBB bb = this.getEntityBoundingBox();
 			if (this.getThrower() instanceof EntityLivingBase) {
 				EntityLivingBase entityLiving = (EntityLivingBase) this.getThrower();
-				List<Entity> list = this.worldObj.getEntitiesWithinAABB(
+				List<Entity> list = this.world.getEntitiesWithinAABB(
 						ConfigLoader.loliPickaxeValidToAllEntity ? Entity.class : EntityLivingBase.class, bb);
 				list.removeAll(alreadyHitEntity);
 				list.removeIf(entity -> entity instanceof EntityLoliSA || entity instanceof EntityDrive

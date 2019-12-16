@@ -1,23 +1,24 @@
 package com.anotherstar.slashblade.common.event;
 
+import com.anotherstar.common.LoliPickaxe;
 import com.anotherstar.slashblade.common.item.ItemLoader;
 import com.anotherstar.slashblade.common.sa.LoliSword;
 
-import cpw.mods.fml.common.Optional;
-import cpw.mods.fml.common.Optional.Interface;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.registry.GameRegistry;
-import mods.flammpfeil.slashblade.ItemSlashBlade;
 import mods.flammpfeil.slashblade.ItemSlashBladeNamed;
+import mods.flammpfeil.slashblade.SlashBlade;
+import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.named.event.LoadEvent;
-import net.minecraft.enchantment.Enchantment;
+import net.minecraft.init.Enchantments;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.fml.common.Optional;
+import net.minecraftforge.fml.common.Optional.Interface;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 @Optional.InterfaceList(value = {
-		@Interface(iface = "com.anotherstar.common.config.ConfigLoader", modid = "LoliPickaxe"),
-		@Interface(iface = "com.anotherstar.common.item.tool.ILoli", modid = "LoliPickaxe"),
-		@Interface(iface = "com.anotherstar.util.LoliPickaxeUtil", modid = "LoliPickaxe") })
+		@Interface(iface = "com.anotherstar.common.config.ConfigLoader", modid = LoliPickaxe.MODID),
+		@Interface(iface = "com.anotherstar.common.item.tool.ILoli", modid = LoliPickaxe.MODID),
+		@Interface(iface = "com.anotherstar.util.LoliPickaxeUtil", modid = LoliPickaxe.MODID) })
 public class LoliLoadEvent {
 
 	@SubscribeEvent
@@ -42,8 +43,8 @@ public class LoliLoadEvent {
 		ItemSlashBlade.ProudSoul.set(tag, 1000000);
 		tag.setBoolean("Unbreakable", true);
 		loliBlade.setTagCompound(tag);
-		loliBlade.addEnchantment(Enchantment.power, 5);
-		GameRegistry.registerCustomItemStack(name, loliBlade);
+		loliBlade.addEnchantment(Enchantments.POWER, 5);
+		SlashBlade.registerCustomItemStack(name, loliBlade);
 		if (false) {
 			ItemSlashBladeNamed.NamedBlades.add(name);
 		}

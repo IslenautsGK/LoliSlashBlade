@@ -2,39 +2,44 @@ package com.anotherstar.slashblade.common.item;
 
 import java.util.EnumSet;
 
+import com.anotherstar.common.LoliPickaxe;
 import com.anotherstar.common.item.tool.ILoli;
 import com.anotherstar.slashblade.common.entity.EntityLoliBlisteringSwords;
 import com.anotherstar.slashblade.common.entity.EntityLoliHeavyRainSwords;
-import com.anotherstar.slashblade.common.entity.EntityLoliPhantomSwordBase;
+import com.anotherstar.slashblade.common.entity.EntityLoliSpinningSword;
 import com.anotherstar.slashblade.common.entity.EntityLoliSpiralSwords;
 import com.anotherstar.slashblade.common.entity.EntityLoliStormSwords;
 import com.anotherstar.slashblade.common.entity.EntityLoliSummonedBlade;
+import com.anotherstar.slashblade.common.entity.EntityLoliSummonedSwordBase;
 
-import cpw.mods.fml.common.Optional;
-import mods.flammpfeil.slashblade.ItemSlashBlade;
 import mods.flammpfeil.slashblade.ItemSlashBladeNamed;
-import mods.flammpfeil.slashblade.MessageRangeAttack;
-import mods.flammpfeil.slashblade.PacketHandler;
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.ability.StylishRankManager;
-import mods.flammpfeil.slashblade.stats.AchievementList;
-import net.minecraft.enchantment.Enchantment;
+import mods.flammpfeil.slashblade.entity.EntitySpinningSword;
+import mods.flammpfeil.slashblade.event.ScheduleEntitySpawner;
+import mods.flammpfeil.slashblade.item.ItemSlashBlade;
+import mods.flammpfeil.slashblade.network.MessageMoveCommandState;
+import mods.flammpfeil.slashblade.network.MessageRangeAttack;
+import mods.flammpfeil.slashblade.network.NetworkManager;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Enchantments;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.Optional;
 
-@Optional.Interface(iface = "com.anotherstar.common.item.tool.ILoli", modid = "LoliPickaxe")
+@Optional.Interface(iface = "com.anotherstar.common.item.tool.ILoli", modid = LoliPickaxe.MODID)
 public class ItemLoliSlashBlade extends ItemSlashBladeNamed implements ILoli {
 
 	public ItemLoliSlashBlade() {
 		super(ToolMaterial.IRON, 4.0f);
 		setMaxDamage(40);
 		setUnlocalizedName("flammpfeil.slashblade.named");
-		setTextureName("flammpfeil.slashblade:proudsoul");
 		setCreativeTab(SlashBlade.tab);
 	}
 
@@ -44,7 +49,7 @@ public class ItemLoliSlashBlade extends ItemSlashBladeNamed implements ILoli {
 		if (entity instanceof EntityPlayer) {
 			NBTTagCompound nbt = getItemTagCompound(stack);
 			if (!nbt.hasKey("LoliOwner")) {
-				nbt.setString("LoliOwner", ((EntityPlayer) entity).getDisplayName());
+				nbt.setString("LoliOwner", ((EntityPlayer) entity).getName());
 			}
 			ItemSlashBlade.RepairCount.set(nbt, 10000);
 			ItemSlashBlade.KillCount.set(nbt, 100000);
@@ -73,18 +78,18 @@ public class ItemLoliSlashBlade extends ItemSlashBladeNamed implements ILoli {
 
 	@Override
 	public void doRangeAttack(ItemStack item, EntityLivingBase entity, MessageRangeAttack.RangeAttackState mode) {
-		World w = entity.worldObj;
+		World w = entity.world;
 		NBTTagCompound tag = getItemTagCompound(item);
 		EnumSet<SwordType> types = getSwordType(item);
 		if (!types.contains(SwordType.Bewitched))
 			return;
 		if (types.contains(SwordType.Broken))
 			return;
-		int level = EnchantmentHelper.getEnchantmentLevel(Enchantment.power.effectId, item);
+		int level = EnchantmentHelper.getEnchantmentLevel(Enchantments.POWER, item);
 		if (level <= 0)
 			return;
 		if (w.isRemote) {
-			PacketHandler.INSTANCE.sendToServer(new MessageRangeAttack(mode));
+			NetworkManager.INSTANCE.sendToServer(new MessageRangeAttack(mode));
 			return;
 		}
 		int rank = StylishRankManager.getStylishRank(entity);
@@ -92,7 +97,7 @@ public class ItemLoliSlashBlade extends ItemSlashBladeNamed implements ILoli {
 		case UPKEY: {
 			if (entity.getEntityData().hasKey("SB.BSHOLDLIMIT")) {
 				long holdLimit = entity.getEntityData().getLong("SB.BSHOLDLIMIT");
-				long currentTime = entity.worldObj.getTotalWorldTime();
+				long currentTime = entity.getEntityWorld().getTotalWorldTime();
 				if (currentTime < holdLimit) {
 					entity.getEntityData().setLong("SB.BSHOLDLIMIT", currentTime);
 					return;
@@ -103,8 +108,33 @@ public class ItemLoliSlashBlade extends ItemSlashBladeNamed implements ILoli {
 			if (rank < 3)
 				level = Math.min(1, level);
 			float magicDamage = level;
-			if (tag.getInteger("RangeAttackType") == 0) {
-				EntityLoliPhantomSwordBase entityDrive = new EntityLoliPhantomSwordBase(w, entity, magicDamage, 90.0f);
+			entity.world.playSound((EntityPlayer) null, entity.prevPosX, entity.prevPosY, entity.prevPosZ,
+					SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.NEUTRAL, 0.35F, 1.0F);
+			final String tauntIdKey = "SB.TauntId";
+			int tauntId = entity.getEntityData().getInteger(tauntIdKey);
+			if (tauntId != 0) {
+				Entity tauntEntity = entity.getEntityWorld().getEntityByID(tauntId);
+				if (tauntEntity == null || tauntEntity.isDead || !(tauntEntity instanceof EntitySpinningSword)) {
+					tauntId = 0;
+					entity.getEntityData().removeTag(tauntIdKey);
+				}
+			}
+			byte command = entity.getEntityData().getByte("SB.MCS");
+			if (tauntId == 0 && entity.onGround && entity.motionX == 0 && entity.motionZ == 0
+					&& 0 < (command & MessageMoveCommandState.CAMERA)) {
+				EntityLoliSpinningSword entityDrive = new EntityLoliSpinningSword(w, entity);
+				if (entityDrive != null) {
+					entityDrive.setLifeTime(40);
+					if (SummonedSwordColor.exists(tag))
+						entityDrive.setColor(SummonedSwordColor.get(tag));
+					else
+						entityDrive.setColor(entity.world.rand.nextInt() & 0x00FFFFFF);
+					ScheduleEntitySpawner.getInstance().offer(entityDrive);
+					entity.getEntityData().setInteger(tauntIdKey, entityDrive.getEntityId());
+				}
+			} else if (tag.getInteger("RangeAttackType") == 0) {
+				EntityLoliSummonedSwordBase entityDrive = new EntityLoliSummonedSwordBase(w, entity, magicDamage,
+						90.0f);
 				if (entityDrive != null) {
 					entityDrive.setLifeTime(30);
 					int targetid = ItemSlashBlade.TargetEntityId.get(tag);
@@ -112,10 +142,8 @@ public class ItemLoliSlashBlade extends ItemSlashBladeNamed implements ILoli {
 					if (SummonedSwordColor.exists(tag))
 						entityDrive.setColor(SummonedSwordColor.get(tag));
 					else
-						entityDrive.setColor(entity.worldObj.rand.nextInt() & 0x00FFFFFF);
-					w.spawnEntityInWorld(entityDrive);
-					if (entity instanceof EntityPlayer)
-						AchievementList.triggerAchievement((EntityPlayer) entity, "phantomSword");
+						entityDrive.setColor(entity.world.rand.nextInt() & 0x00FFFFFF);
+					ScheduleEntitySpawner.getInstance().offer(entityDrive);
 				}
 			} else {
 				EntityLoliSummonedBlade summonedBlade = new EntityLoliSummonedBlade(w, entity, magicDamage, 90.0f);
@@ -127,8 +155,8 @@ public class ItemLoliSlashBlade extends ItemSlashBladeNamed implements ILoli {
 					if (SummonedSwordColor.exists(tag))
 						summonedBlade.setColor(SummonedSwordColor.get(tag));
 					else
-						summonedBlade.setColor(entity.worldObj.rand.nextInt() & 0x00FFFFFF);
-					w.spawnEntityInWorld(summonedBlade);
+						summonedBlade.setColor(entity.world.rand.nextInt() & 0x00FFFFFF);
+					ScheduleEntitySpawner.getInstance().offer(summonedBlade);
 				}
 			}
 			break;
@@ -136,17 +164,13 @@ public class ItemLoliSlashBlade extends ItemSlashBladeNamed implements ILoli {
 		case BLISTERING: {
 			if (!ProudSoul.tryAdd(tag, -10, false))
 				return;
-			long currentTime = entity.worldObj.getTotalWorldTime();
+			long currentTime = entity.getEntityWorld().getTotalWorldTime();
 			final int holdLimit = 400;
 			entity.getEntityData().setLong("SB.BSHOLDLIMIT", currentTime + holdLimit);
-			entity.playSound("mob.endermen.portal", 0.5F, 1.0F);
-			int count = 4;
-			if (3 < rank)
-				count += 2;
-			if (5 <= rank)
-				count += 2;
+			entity.world.playSound((EntityPlayer) null, entity.prevPosX, entity.prevPosY, entity.prevPosZ,
+					SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.NEUTRAL, 0.7F, 1.0F);
 			float magicDamage = level * 2;
-			for (int i = 0; i < count; i++) {
+			for (int i = 0; i < 8; i++) {
 				EntityLoliBlisteringSwords summonedSword = new EntityLoliBlisteringSwords(w, entity, magicDamage, 90.0f,
 						i);
 				if (summonedSword != null) {
@@ -157,14 +181,14 @@ public class ItemLoliSlashBlade extends ItemSlashBladeNamed implements ILoli {
 					if (SummonedSwordColor.exists(tag))
 						summonedSword.setColor(SummonedSwordColor.get(tag));
 					else
-						summonedSword.setColor(entity.worldObj.rand.nextInt() & 0x00FFFFFF);
-					w.spawnEntityInWorld(summonedSword);
+						summonedSword.setColor(entity.world.rand.nextInt() & 0x00FFFFFF);
+					ScheduleEntitySpawner.getInstance().offer(summonedSword);
 				}
 			}
 			break;
 		}
 		case SPIRAL: {
-			int currentTime = (int) entity.worldObj.getWorldTime();
+			int currentTime = (int) entity.getEntityWorld().getWorldTime();
 			final int holdLimit = 200;
 			if (entity.getEntityData().hasKey("SB.SPHOLDID")) {
 				if (currentTime < (entity.getEntityData().getInteger("SB.SPHOLDID") + holdLimit)) {
@@ -174,8 +198,8 @@ public class ItemLoliSlashBlade extends ItemSlashBladeNamed implements ILoli {
 			}
 			if (!ProudSoul.tryAdd(tag, -10, false))
 				return;
-			entity.worldObj.playSoundEffect(entity.prevPosX, entity.prevPosY, entity.prevPosZ, "mob.endermen.portal",
-					0.7F, 1.0F);
+			entity.world.playSound((EntityPlayer) null, entity.prevPosX, entity.prevPosY, entity.prevPosZ,
+					SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.NEUTRAL, 0.7F, 1.0F);
 			int count = 6;
 			if (rank < 3)
 				level = Math.min(1, level);
@@ -192,8 +216,8 @@ public class ItemLoliSlashBlade extends ItemSlashBladeNamed implements ILoli {
 					if (SummonedSwordColor.exists(tag))
 						summonedSword.setColor(SummonedSwordColor.get(tag));
 					else
-						summonedSword.setColor(entity.worldObj.rand.nextInt() & 0x00FFFFFF);
-					w.spawnEntityInWorld(summonedSword);
+						summonedSword.setColor(entity.world.rand.nextInt() & 0x00FFFFFF);
+					ScheduleEntitySpawner.getInstance().offer(summonedSword);
 				}
 			}
 			break;
@@ -204,8 +228,8 @@ public class ItemLoliSlashBlade extends ItemSlashBladeNamed implements ILoli {
 				return;
 			if (!ProudSoul.tryAdd(tag, -10, false))
 				return;
-			entity.worldObj.playSoundEffect(entity.prevPosX, entity.prevPosY, entity.prevPosZ, "mob.endermen.portal",
-					0.7F, 1.0F);
+			entity.world.playSound((EntityPlayer) null, entity.prevPosX, entity.prevPosY, entity.prevPosZ,
+					SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.NEUTRAL, 0.7F, 1.0F);
 			int count = 6;
 			if (rank < 3)
 				level = Math.min(1, level);
@@ -222,8 +246,8 @@ public class ItemLoliSlashBlade extends ItemSlashBladeNamed implements ILoli {
 					if (SummonedSwordColor.exists(tag))
 						summonedSword.setColor(SummonedSwordColor.get(tag));
 					else
-						summonedSword.setColor(entity.worldObj.rand.nextInt() & 0x00FFFFFF);
-					w.spawnEntityInWorld(summonedSword);
+						summonedSword.setColor(entity.world.rand.nextInt() & 0x00FFFFFF);
+					ScheduleEntitySpawner.getInstance().offer(summonedSword);
 				}
 			}
 			break;
@@ -231,12 +255,10 @@ public class ItemLoliSlashBlade extends ItemSlashBladeNamed implements ILoli {
 		case HEAVY_RAIN: {
 			if (!ProudSoul.tryAdd(tag, -10, false))
 				return;
-			entity.worldObj.playSoundEffect(entity.prevPosX, entity.prevPosY, entity.prevPosZ, "mob.endermen.portal",
-					0.7F, 1.0F);
+			entity.world.playSound((EntityPlayer) null, entity.prevPosX, entity.prevPosY, entity.prevPosZ,
+					SoundEvents.ENTITY_ENDERMEN_TELEPORT, SoundCategory.NEUTRAL, 0.7F, 1.0F);
 			int count = 10;
-			int multiplier = 2;
-			if (5 <= rank)
-				multiplier += 1;
+			int multiplier = 5;
 			float magicDamage = 1;
 			int targetid = ItemSlashBlade.TargetEntityId.get(tag);
 			for (int i = 0; i < count; i++) {
@@ -248,8 +270,8 @@ public class ItemLoliSlashBlade extends ItemSlashBladeNamed implements ILoli {
 						if (SummonedSwordColor.exists(tag))
 							summonedSword.setColor(SummonedSwordColor.get(tag));
 						else
-							summonedSword.setColor(entity.worldObj.rand.nextInt() & 0x00FFFFFF);
-						w.spawnEntityInWorld(summonedSword);
+							summonedSword.setColor(entity.world.rand.nextInt() & 0x00FFFFFF);
+						ScheduleEntitySpawner.getInstance().offer(summonedSword);
 					}
 				}
 			}
