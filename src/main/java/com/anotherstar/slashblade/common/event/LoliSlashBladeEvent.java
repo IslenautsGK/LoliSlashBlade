@@ -31,7 +31,7 @@ public class LoliSlashBladeEvent {
 						LoliPickaxeUtil.killPlayer((EntityPlayer) event.getTarget(), event.getEntityPlayer());
 					} else if (event.getTarget() instanceof EntityLivingBase) {
 						LoliPickaxeUtil.killEntityLiving((EntityLivingBase) event.getTarget(), event.getEntityPlayer());
-					} else if (ConfigLoader.loliPickaxeValidToAllEntity) {
+					} else if (ConfigLoader.getBoolean(stack, "loliPickaxeValidToAllEntity")) {
 						LoliPickaxeUtil.killEntity(event.getTarget());
 					}
 				}

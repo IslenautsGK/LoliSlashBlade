@@ -56,7 +56,7 @@ public class LoliSword extends SpecialAttackBase implements IJustSpecialAttack, 
 			}
 		}
 		if (target == null) {
-			target = getEntityToWatch(player);
+			target = getEntityToWatch(stack, player);
 		}
 		if (target == null) {
 			ItemSlashBlade.setComboSequence(tag, ItemSlashBlade.ComboSequence.SlashDim);
@@ -108,8 +108,9 @@ public class LoliSword extends SpecialAttackBase implements IJustSpecialAttack, 
 			}
 			AxisAlignedBB bb = target.getEntityBoundingBox();
 			bb = bb.expand(2.0f, 0.25f, 2.0f);
-			List<Entity> list = world.getEntitiesWithinAABB(
-					ConfigLoader.loliPickaxeValidToAllEntity ? Entity.class : EntityLivingBase.class, bb);
+			List<Entity> list = world
+					.getEntitiesWithinAABB(ConfigLoader.getBoolean(stack, "loliPickaxeValidToAllEntity") ? Entity.class
+							: EntityLivingBase.class, bb);
 			if (list.contains(player)) {
 				list.remove(player);
 			}
@@ -121,7 +122,7 @@ public class LoliSword extends SpecialAttackBase implements IJustSpecialAttack, 
 					LoliPickaxeUtil.killPlayer((EntityPlayer) curEntity, player);
 				} else if (curEntity instanceof EntityLivingBase) {
 					LoliPickaxeUtil.killEntityLiving((EntityLivingBase) curEntity, player);
-				} else if (ConfigLoader.loliPickaxeValidToAllEntity) {
+				} else if (ConfigLoader.getBoolean(stack, "loliPickaxeValidToAllEntity")) {
 					LoliPickaxeUtil.killEntity(curEntity);
 				}
 			}
@@ -139,7 +140,7 @@ public class LoliSword extends SpecialAttackBase implements IJustSpecialAttack, 
 		}
 	}
 
-	private Entity getEntityToWatch(EntityPlayer player) {
+	private Entity getEntityToWatch(ItemStack blade, EntityPlayer player) {
 		World world = player.world;
 		Entity target = null;
 		for (int dist = 2; dist < 100; dist += 2) {
@@ -148,8 +149,9 @@ public class LoliSword extends SpecialAttackBase implements IJustSpecialAttack, 
 			vec = vec.normalize();
 			bb = bb.grow(2.0f, 0.25f, 2.0f);
 			bb = bb.offset(vec.x * (float) dist, vec.y * (float) dist, vec.z * (float) dist);
-			List<Entity> list = world.getEntitiesWithinAABB(
-					ConfigLoader.loliPickaxeValidToAllEntity ? Entity.class : EntityLivingBase.class, bb);
+			List<Entity> list = world
+					.getEntitiesWithinAABB(ConfigLoader.getBoolean(blade, "loliPickaxeValidToAllEntity") ? Entity.class
+							: EntityLivingBase.class, bb);
 			if (list.contains(player)) {
 				list.remove(player);
 			}

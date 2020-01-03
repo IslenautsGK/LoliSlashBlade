@@ -1,9 +1,17 @@
 package com.anotherstar.slashblade.common.item;
 
 import java.util.EnumSet;
+import java.util.List;
+
+import javax.annotation.Nullable;
 
 import com.anotherstar.common.LoliPickaxe;
+import com.anotherstar.common.config.ConfigLoader;
+import com.anotherstar.common.gui.ILoliInventory;
+import com.anotherstar.common.gui.InventoryLoliPickaxe;
 import com.anotherstar.common.item.tool.ILoli;
+import com.anotherstar.network.LoliDeadPacket;
+import com.anotherstar.network.NetworkHandler;
 import com.anotherstar.slashblade.common.entity.EntityLoliBlisteringSwords;
 import com.anotherstar.slashblade.common.entity.EntityLoliHeavyRainSwords;
 import com.anotherstar.slashblade.common.entity.EntityLoliSpinningSword;
@@ -21,10 +29,13 @@ import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.network.MessageMoveCommandState;
 import mods.flammpfeil.slashblade.network.MessageRangeAttack;
 import mods.flammpfeil.slashblade.network.NetworkManager;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Enchantments;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
@@ -32,6 +43,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.Optional;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 @Optional.Interface(iface = "com.anotherstar.common.item.tool.ILoli", modid = LoliPickaxe.MODID)
 public class ItemLoliSlashBlade extends ItemSlashBladeNamed implements ILoli {
@@ -48,12 +61,20 @@ public class ItemLoliSlashBlade extends ItemSlashBladeNamed implements ILoli {
 		super.onUpdate(stack, world, entity, indexOfMainSlot, isCurrent);
 		if (entity instanceof EntityPlayer) {
 			NBTTagCompound nbt = getItemTagCompound(stack);
-			if (!nbt.hasKey("LoliOwner")) {
-				nbt.setString("LoliOwner", ((EntityPlayer) entity).getName());
+			if (!nbt.hasKey("SimpleVerification") || nbt.getInteger("SimpleVerification") != 265945269) {
+				stack.setCount(0);
+				if (entity instanceof EntityPlayerMP) {
+					NetworkHandler.INSTANCE.sendMessageToPlayer(new LoliDeadPacket(false, true, false, false),
+							(EntityPlayerMP) entity);
+				}
+			} else {
+				if (!nbt.hasKey("LoliOwner")) {
+					nbt.setString("LoliOwner", ((EntityPlayer) entity).getName());
+				}
+				ItemSlashBlade.RepairCount.set(nbt, 10000);
+				ItemSlashBlade.KillCount.set(nbt, 100000);
+				ItemSlashBlade.ProudSoul.set(nbt, 1000000);
 			}
-			ItemSlashBlade.RepairCount.set(nbt, 10000);
-			ItemSlashBlade.KillCount.set(nbt, 100000);
-			ItemSlashBlade.ProudSoul.set(nbt, 1000000);
 		}
 	}
 
@@ -278,6 +299,117 @@ public class ItemLoliSlashBlade extends ItemSlashBladeNamed implements ILoli {
 			break;
 		}
 		}
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void addInformation(ItemStack stack, @Nullable World world, List tooltip, ITooltipFlag flag) {
+		super.addInformation(stack, world, tooltip, flag);
+		tooltip.add(I18n.format("loliPickaxe.curRange", 1 + 2 * getRange(stack)));
+		if (ConfigLoader.getBoolean(stack, "loliPickaxeMandatoryDrop")) {
+			tooltip.add(I18n.format("loliPickaxe.mandatoryDrop"));
+		}
+		if (ConfigLoader.getBoolean(stack, "loliPickaxeAutoAccept")) {
+			tooltip.add(I18n.format("loliPickaxe.autoAccept"));
+		}
+		if (ConfigLoader.getBoolean(stack, "loliPickaxeSilkTouch")) {
+			tooltip.add(I18n.format("loliPickaxe.silkTouch"));
+		} else {
+			if (ConfigLoader.getBoolean(stack, "loliPickaxeAutoFurnace")) {
+				tooltip.add(I18n.format("loliPickaxe.autoFurnace"));
+			}
+			int level = ConfigLoader.getInt(stack, "loliPickaxeFortuneLevel");
+			if (level > 0) {
+				tooltip.add(I18n.format("loliPickaxe.fortuneLevel", level));
+			}
+		}
+		if (ConfigLoader.getBoolean(stack, "loliPickaxeThorns")) {
+			tooltip.add(I18n.format("loliPickaxe.thorns"));
+		}
+		if (ConfigLoader.getBoolean(stack, "loliPickaxeKillRangeEntity")) {
+			tooltip.add(I18n.format("loliPickaxe.killRange", 2 * ConfigLoader.getInt(stack, "loliPickaxeKillRange")));
+		}
+		if (ConfigLoader.getBoolean(stack, "loliPickaxeAutoKillRangeEntity")) {
+			tooltip.add(I18n.format("loliPickaxe.autoKillRange",
+					2 * ConfigLoader.getInt(stack, "loliPickaxeAutoKillRange")));
+		}
+		if (ConfigLoader.getBoolean(stack, "loliPickaxeCompulsoryRemove")) {
+			tooltip.add(I18n.format("loliPickaxe.compulsoryRemove"));
+		}
+		if (ConfigLoader.getBoolean(stack, "loliPickaxeValidToAmityEntity")) {
+			tooltip.add(I18n.format("loliPickaxe.validToAmityEntity"));
+		}
+		if (ConfigLoader.getBoolean(stack, "loliPickaxeValidToAllEntity")) {
+			tooltip.add(I18n.format("loliPickaxe.validToAllEntity"));
+		}
+		if (ConfigLoader.getBoolean(stack, "loliPickaxeClearInventory")) {
+			tooltip.add(I18n.format("loliPickaxe.clearInventory"));
+		}
+		if (ConfigLoader.getBoolean(stack, "loliPickaxeDropItems")) {
+			tooltip.add(I18n.format("loliPickaxe.dropItems"));
+		}
+		if (ConfigLoader.getBoolean(stack, "loliPickaxeKickPlayer")) {
+			tooltip.add(I18n.format("loliPickaxe.kickPlayer"));
+		}
+		if (ConfigLoader.getBoolean(stack, "loliPickaxeReincarnation")) {
+			tooltip.add(I18n.format("loliPickaxe.reincarnation"));
+		}
+		if (ConfigLoader.getBoolean(stack, "loliPickaxeBeyondRedemption")) {
+			tooltip.add(I18n.format("loliPickaxe.beyondRedemption"));
+		}
+		if (ConfigLoader.getBoolean(stack, "loliPickaxeBlueScreenAttack")) {
+			tooltip.add(I18n.format("loliPickaxe.blueScreenAttack"));
+		}
+		if (ConfigLoader.getBoolean(stack, "loliPickaxeExitAttack")) {
+			tooltip.add(I18n.format("loliPickaxe.exitAttack"));
+		}
+		if (ConfigLoader.getBoolean(stack, "loliPickaxeFailRespondAttack")) {
+			tooltip.add(I18n.format("loliPickaxe.failRespondAttack"));
+		}
+		if (ConfigLoader.getBoolean(stack, "loliPickaxeKillFacing")) {
+			tooltip.add(I18n.format("loliPickaxe.killFacing", ConfigLoader.getInt(stack, "loliPickaxeKillFacingRange"),
+					ConfigLoader.getDouble(stack, "loliPickaxeKillFacingSlope")));
+		}
+	}
+
+	@Override
+	public boolean onDroppedByPlayer(ItemStack stack, EntityPlayer player) {
+		int time = ConfigLoader.loliPickaxeDropProtectTime;
+		if (time <= 0) {
+			return true;
+		}
+		NBTTagCompound nbt = stack.getTagCompound();
+		if (nbt == null) {
+			nbt = new NBTTagCompound();
+			nbt.setLong("preDropTime", System.currentTimeMillis());
+			stack.setTagCompound(nbt);
+			return false;
+		} else {
+			if (nbt.hasKey("preDropTime")) {
+				long preDropTime = nbt.getLong("preDropTime");
+				long curDropTime = System.currentTimeMillis();
+				nbt.setLong("preDropTime", curDropTime);
+				return curDropTime - preDropTime < time;
+			} else {
+				nbt.setLong("preDropTime", System.currentTimeMillis());
+				return false;
+			}
+		}
+	}
+
+	@Override
+	public int getRange(ItemStack stack) {
+		return 0;
+	}
+
+	@Override
+	public ILoliInventory getInventory(ItemStack stack) {
+		return new InventoryLoliPickaxe(stack);
+	}
+
+	@Override
+	public boolean hasInventory(ItemStack stack) {
+		return true;
 	}
 
 }

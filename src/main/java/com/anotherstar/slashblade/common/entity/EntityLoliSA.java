@@ -12,6 +12,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.Optional;
@@ -54,13 +55,15 @@ public class EntityLoliSA extends EntitySlashDimension {
 			if (this.getThrower() instanceof EntityLivingBase) {
 				EntityLivingBase entityLiving = (EntityLivingBase) this.getThrower();
 				List<Entity> list = this.world.getEntitiesWithinAABB(
-						ConfigLoader.loliPickaxeValidToAllEntity ? Entity.class : EntityLivingBase.class, bb);
+						ConfigLoader.getBoolean(blade, "loliPickaxeValidToAllEntity") ? Entity.class
+								: EntityLivingBase.class,
+						bb);
 				list.removeAll(alreadyHitEntity);
 				list.removeIf(entity -> entity instanceof EntityLoliSA || entity instanceof EntityDrive
 						|| entity instanceof EntityLoliSuperSA);
 				alreadyHitEntity.addAll(list);
 				for (Entity curEntity : list) {
-					attack(curEntity);
+					attack(blade, curEntity);
 				}
 			}
 		}
@@ -71,13 +74,13 @@ public class EntityLoliSA extends EntitySlashDimension {
 		}
 	}
 
-	private void attack(Entity target) {
+	private void attack(ItemStack blade, Entity target) {
 		if (getThrower() instanceof EntityLivingBase) {
 			if (target instanceof EntityPlayer) {
 				LoliPickaxeUtil.killPlayer((EntityPlayer) target, (EntityLivingBase) thrower);
 			} else if (target instanceof EntityLivingBase) {
 				LoliPickaxeUtil.killEntityLiving((EntityLivingBase) target, (EntityLivingBase) thrower);
-			} else if (ConfigLoader.loliPickaxeValidToAllEntity) {
+			} else if (ConfigLoader.getBoolean(blade, "loliPickaxeValidToAllEntity")) {
 				LoliPickaxeUtil.killEntity(target);
 			}
 		}

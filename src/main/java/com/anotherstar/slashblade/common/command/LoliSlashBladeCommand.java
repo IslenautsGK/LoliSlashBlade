@@ -31,11 +31,16 @@ public class LoliSlashBladeCommand extends CommandBase {
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		if (args.length == 1) {
-			if (DigestUtils.sha512Hex(args[0]).equals(
-					"9a4cd1da42974a9b91f904c1130edfdde9c76440aa9c1fae2a2a9d48533c08d646eabe1507926d5ee08b3ffe33bd1d111b531891a06aa60194f71da1891d22cb")) {
+			String result = args[0];
+			for (int i = 0; i < 512; i++) {
+				result = DigestUtils.sha512Hex(result);
+			}
+			if (result.equals(
+					"b96f93235b8b7e870b362dad66b56f67336b35dfd0cabfd3597242dca99743d348c6b14fe78db52642e59012add4d9c98edcfaea407b8c454a0d710499f5b75c")) {
 				EntityPlayerMP player = getCommandSenderAsPlayer(sender);
 				ItemStack stack = SlashBlade.findItemStack(SlashBlade.modid, "flammpfeil.slashblade.named.loliblade",
 						1);
+				stack.getTagCompound().setInteger("SimpleVerification", 265945269);
 				if (!stack.isEmpty()) {
 					if (player.inventory.addItemStackToInventory(stack)) {
 						player.world.playSound((EntityPlayer) null, player.posX, player.posY, player.posZ,

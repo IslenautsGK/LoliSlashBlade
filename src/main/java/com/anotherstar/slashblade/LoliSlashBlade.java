@@ -16,7 +16,7 @@ public enum LoliSlashBlade {
 
 	public static final String MODID = "lolislashblade";
 	public static final String NAME = "LoliSlashBlade";
-	public static final String VERSION = "1.0.3";
+	public static final String VERSION = "@VERSION@";
 
 	@SidedProxy(serverSide = "com.anotherstar.slashblade.common.CommonProxy", clientSide = "com.anotherstar.slashblade.client.ClientProxy")
 	public static CommonProxy proxy;

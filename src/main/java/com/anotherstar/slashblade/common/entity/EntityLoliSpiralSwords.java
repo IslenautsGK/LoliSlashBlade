@@ -65,7 +65,8 @@ public class EntityLoliSpiralSwords extends EntitySpiralSwords {
 				1.0D);
 		AxisAlignedBB bb2 = this.getEntityBoundingBox().grow(1.0D, 1.0D, 1.0D);
 		List list = this.world.getEntitiesWithinAABB(
-				ConfigLoader.loliPickaxeValidToAllEntity ? Entity.class : EntityLivingBase.class, bb);
+				ConfigLoader.getBoolean(blade, "loliPickaxeValidToAllEntity") ? Entity.class : EntityLivingBase.class,
+				bb);
 		list.removeAll(alreadyHitEntity);
 		if (getTargetEntityId() != 0) {
 			Entity target = world.getEntityByID(getTargetEntityId());

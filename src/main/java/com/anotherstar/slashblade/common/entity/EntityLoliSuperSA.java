@@ -50,8 +50,8 @@ public class EntityLoliSuperSA extends EntityJudgmentCutManager {
 		this.alreadyHitEntity.add(this);
 	}
 
-	private static final DataParameter<Integer> ThrowerEntityID = EntityDataManager
-			.<Integer>createKey(EntityLoliSuperSA.class, DataSerializers.VARINT);
+	private static final DataParameter<Integer> ThrowerEntityID = EntityDataManager.createKey(EntityLoliSuperSA.class,
+			DataSerializers.VARINT);
 
 	@Override
 	protected void entityInit() {
@@ -103,14 +103,12 @@ public class EntityLoliSuperSA extends EntityJudgmentCutManager {
 		}
 		if (!world.isRemote) {
 			if (this.ticksExisted == 2 && this.getThrower() != null) {
+				int range = ConfigLoader.getInt(blade, "loliPickaxeKillRange");
 				List<Entity> list = this.world.getEntitiesWithinAABB(
-						ConfigLoader.loliPickaxeValidToAllEntity ? Entity.class : EntityLivingBase.class,
-						new AxisAlignedBB(this.posX - ConfigLoader.loliPickaxeKillRange,
-								this.posY - ConfigLoader.loliPickaxeKillRange,
-								this.posZ - ConfigLoader.loliPickaxeKillRange,
-								this.posX + ConfigLoader.loliPickaxeKillRange,
-								this.posY + ConfigLoader.loliPickaxeKillRange,
-								this.posZ + ConfigLoader.loliPickaxeKillRange));
+						ConfigLoader.getBoolean(blade, "loliPickaxeValidToAllEntity") ? Entity.class
+								: EntityLivingBase.class,
+						new AxisAlignedBB(this.posX - range, this.posY - range, this.posZ - range, this.posX + range,
+								this.posY + range, this.posZ + range));
 				list.removeAll(alreadyHitEntity);
 				if (!blade.isEmpty()) {
 					NBTTagCompound tag = ItemSlashBlade.getItemTagCompound(blade);
@@ -137,14 +135,12 @@ public class EntityLoliSuperSA extends EntityJudgmentCutManager {
 			}
 			if (this.ticksExisted == 25 && this.getThrower() != null && this.getThrower() instanceof EntityPlayer) {
 				EntityPlayer player = (EntityPlayer) this.getThrower();
+				int range = ConfigLoader.getInt(blade, "loliPickaxeKillRange");
 				List<Entity> list = this.world.getEntitiesWithinAABB(
-						ConfigLoader.loliPickaxeValidToAllEntity ? Entity.class : EntityLivingBase.class,
-						new AxisAlignedBB(this.posX - ConfigLoader.loliPickaxeKillRange,
-								this.posY - ConfigLoader.loliPickaxeKillRange,
-								this.posZ - ConfigLoader.loliPickaxeKillRange,
-								this.posX + ConfigLoader.loliPickaxeKillRange,
-								this.posY + ConfigLoader.loliPickaxeKillRange,
-								this.posZ + ConfigLoader.loliPickaxeKillRange));
+						ConfigLoader.getBoolean(blade, "loliPickaxeValidToAllEntity") ? Entity.class
+								: EntityLivingBase.class,
+						new AxisAlignedBB(this.posX - range, this.posY - range, this.posZ - range, this.posX + range,
+								this.posY + range, this.posZ + range));
 				list.removeAll(alreadyHitEntity);
 				list.removeIf(entity -> entity instanceof EntityLoliSA || entity instanceof EntityDrive
 						|| entity instanceof EntityLoliSuperSA);
@@ -154,8 +150,8 @@ public class EntityLoliSuperSA extends EntityJudgmentCutManager {
 					int level = EnchantmentHelper.getEnchantmentLevel(Enchantments.POWER, blade);
 					float magicDamage = 1.0f + ItemSlashBlade.AttackAmplifier.get(tag) * (level / 5.0f);
 					for (Entity curEntity : list) {
-						if (ConfigLoader.loliPickaxeValidToAllEntity) {
-							attack(curEntity);
+						if (ConfigLoader.getBoolean(blade, "loliPickaxeValidToAllEntity")) {
+							attack(blade, curEntity);
 						} else {
 							for (int i = 0; i < 5; i++) {
 								EntityDrive entityDrive = new EntityDrive(this.world,
@@ -219,13 +215,13 @@ public class EntityLoliSuperSA extends EntityJudgmentCutManager {
 		}
 	}
 
-	private void attack(Entity target) {
+	private void attack(ItemStack blade, Entity target) {
 		if (getThrower() instanceof EntityLivingBase) {
 			if (target instanceof EntityPlayer) {
 				LoliPickaxeUtil.killPlayer((EntityPlayer) target, (EntityLivingBase) thrower);
 			} else if (target instanceof EntityLivingBase) {
 				LoliPickaxeUtil.killEntityLiving((EntityLivingBase) target, (EntityLivingBase) thrower);
-			} else if (ConfigLoader.loliPickaxeValidToAllEntity) {
+			} else if (ConfigLoader.getBoolean(blade, "loliPickaxeValidToAllEntity")) {
 				LoliPickaxeUtil.killEntity(target);
 			}
 		}
