@@ -2,7 +2,6 @@ package com.anotherstar.slashblade.common.sa;
 
 import java.util.List;
 
-import com.anotherstar.common.LoliPickaxe;
 import com.anotherstar.common.config.ConfigLoader;
 import com.anotherstar.slashblade.common.entity.EntityLoliSA;
 import com.anotherstar.slashblade.common.entity.EntityLoliSuperSA;
@@ -29,12 +28,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.Optional;
-import net.minecraftforge.fml.common.Optional.Interface;
 
-@Optional.InterfaceList(value = {
-		@Interface(iface = "com.anotherstar.common.config.ConfigLoader", modid = LoliPickaxe.MODID),
-		@Interface(iface = "com.anotherstar.util.LoliPickaxeUtil", modid = LoliPickaxe.MODID) })
 public class LoliSword extends SpecialAttackBase implements IJustSpecialAttack, ISuperSpecialAttack {
 
 	@Override
@@ -148,7 +142,7 @@ public class LoliSword extends SpecialAttackBase implements IJustSpecialAttack, 
 			Vec3d vec = player.getLookVec();
 			vec = vec.normalize();
 			bb = bb.grow(2.0f, 0.25f, 2.0f);
-			bb = bb.offset(vec.x * (float) dist, vec.y * (float) dist, vec.z * (float) dist);
+			bb = bb.offset(vec.x * dist, vec.y * dist, vec.z * dist);
 			List<Entity> list = world
 					.getEntitiesWithinAABB(ConfigLoader.getBoolean(blade, "loliPickaxeValidToAllEntity") ? Entity.class
 							: EntityLivingBase.class, bb);

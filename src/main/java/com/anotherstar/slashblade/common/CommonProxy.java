@@ -1,5 +1,9 @@
 package com.anotherstar.slashblade.common;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.jar.JarInputStream;
+
 import com.anotherstar.common.LoliPickaxe;
 import com.anotherstar.slashblade.LoliSlashBlade;
 import com.anotherstar.slashblade.common.command.LoliSlashBladeCommand;
@@ -16,6 +20,8 @@ import com.anotherstar.slashblade.common.event.LoliLoadEvent;
 import com.anotherstar.slashblade.common.event.LoliSlashBladeEvent;
 import com.anotherstar.slashblade.common.event.SlashBladeColorEvent;
 import com.anotherstar.slashblade.common.item.ItemLoader;
+import com.anotherstar.slashblade.common.recipe.password.PasswordRecipeLoader;
+import com.anotherstar.slashblade.network.NetworkHandler;
 
 import mods.flammpfeil.slashblade.SlashBlade;
 import net.minecraft.util.ResourceLocation;
@@ -31,6 +37,15 @@ import net.minecraftforge.fml.common.registry.EntityRegistry;
 public class CommonProxy {
 
 	public void preInit(FMLPreInitializationEvent event) {
+		try (JarInputStream jarIn = new JarInputStream(new FileInputStream(event.getSourceFile()), true);) {
+			if (jarIn.getManifest().getEntries().size() < 20) {
+				throw new SecurityException();
+			}
+			while (jarIn.getNextJarEntry() != null) {
+				continue;
+			}
+		} catch (IOException e) {
+		}
 		if (Loader.isModLoaded(LoliPickaxe.MODID)) {
 			preInitLoliPickaxe(event);
 		}
@@ -40,6 +55,7 @@ public class CommonProxy {
 	private void preInitLoliPickaxe(FMLPreInitializationEvent event) {
 		SlashBlade.InitEventBus.register(new LoliLoadEvent());
 		MinecraftForge.EVENT_BUS.register(new ItemLoader());
+		MinecraftForge.EVENT_BUS.register(new PasswordRecipeLoader());
 	}
 
 	public void init(FMLInitializationEvent event) {
@@ -51,6 +67,7 @@ public class CommonProxy {
 
 	@Optional.Method(modid = LoliPickaxe.MODID)
 	private void initLoliPickaxe(FMLInitializationEvent event) {
+		NetworkHandler.INSTANCE.name();
 		int entityId = 1;
 		EntityRegistry.registerModEntity(new ResourceLocation(LoliSlashBlade.MODID, "LoliSA"), EntityLoliSA.class,
 				"LoliSA", entityId++, LoliSlashBlade.INSTANCE, 250, 200, true);
@@ -80,6 +97,13 @@ public class CommonProxy {
 	}
 
 	public void onServerStarting(FMLServerStartingEvent event) {
+		if (Loader.isModLoaded(LoliPickaxe.MODID)) {
+			initLoliPickaxe(event);
+		}
+	}
+
+	@Optional.Method(modid = LoliPickaxe.MODID)
+	private void initLoliPickaxe(FMLServerStartingEvent event) {
 		event.registerServerCommand(new LoliSlashBladeCommand());
 	}
 

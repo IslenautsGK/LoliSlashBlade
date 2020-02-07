@@ -2,7 +2,6 @@ package com.anotherstar.slashblade.common.entity;
 
 import java.util.List;
 
-import com.anotherstar.common.LoliPickaxe;
 import com.anotherstar.common.config.ConfigLoader;
 import com.anotherstar.util.LoliPickaxeUtil;
 
@@ -15,12 +14,7 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.Optional;
-import net.minecraftforge.fml.common.Optional.Interface;
 
-@Optional.InterfaceList(value = {
-		@Interface(iface = "com.anotherstar.common.config.ConfigLoader", modid = LoliPickaxe.MODID),
-		@Interface(iface = "com.anotherstar.util.LoliPickaxeUtil", modid = LoliPickaxe.MODID) })
 public class EntityLoliSA extends EntitySlashDimension {
 
 	public EntityLoliSA(World world) {

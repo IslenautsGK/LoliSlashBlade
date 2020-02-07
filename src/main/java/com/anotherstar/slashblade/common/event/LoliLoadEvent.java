@@ -1,6 +1,7 @@
 package com.anotherstar.slashblade.common.event;
 
 import com.anotherstar.common.LoliPickaxe;
+import com.anotherstar.common.enchantment.EnchantmentLoader;
 import com.anotherstar.slashblade.common.item.ItemLoader;
 import com.anotherstar.slashblade.common.sa.LoliSword;
 
@@ -11,22 +12,23 @@ import mods.flammpfeil.slashblade.named.event.LoadEvent;
 import net.minecraft.init.Enchantments;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraftforge.fml.common.Optional;
-import net.minecraftforge.fml.common.Optional.Interface;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-@Optional.InterfaceList(value = {
-		@Interface(iface = "com.anotherstar.common.config.ConfigLoader", modid = LoliPickaxe.MODID),
-		@Interface(iface = "com.anotherstar.common.item.tool.ILoli", modid = LoliPickaxe.MODID),
-		@Interface(iface = "com.anotherstar.util.LoliPickaxeUtil", modid = LoliPickaxe.MODID) })
 public class LoliLoadEvent {
 
-	@SubscribeEvent
+	public static int id;
+
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	@Optional.Method(modid = LoliPickaxe.MODID)
 	public void init(LoadEvent.InitEvent event) {
 		int i = 40;
 		while (ItemSlashBlade.specialAttacks.containsKey(i)) {
 			i++;
 		}
+		id = i;
 		ItemSlashBlade.specialAttacks.put(i, new LoliSword());
 		String name = "flammpfeil.slashblade.named.loliblade";
 		ItemStack loliBlade = new ItemStack(ItemLoader.loliSlashBlade, 1, 0);
@@ -44,10 +46,20 @@ public class LoliLoadEvent {
 		tag.setBoolean("Unbreakable", true);
 		loliBlade.setTagCompound(tag);
 		loliBlade.addEnchantment(Enchantments.POWER, 5);
+		loliBlade.addEnchantment(Enchantments.FORTUNE, 32);
+		loliBlade.addEnchantment(EnchantmentLoader.loliAutoFurnace, 1);
+		NBTTagList list = new NBTTagList();
+		NBTTagCompound element = new NBTTagCompound();
+		element.setShort("id", (short) 16);
+		element.setByte("lvl", (byte) 0);
+		list.appendTag(element);
+		element = new NBTTagCompound();
+		element.setShort("id", (short) 13);
+		element.setByte("lvl", (byte) 0);
+		list.appendTag(element);
+		loliBlade.setTagInfo("LoliPotion", list);
 		SlashBlade.registerCustomItemStack(name, loliBlade);
-		if (false) {
-			ItemSlashBladeNamed.NamedBlades.add(name);
-		}
+		// ItemSlashBladeNamed.NamedBlades.add(name);
 	}
 
 }

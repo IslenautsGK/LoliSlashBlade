@@ -2,7 +2,6 @@ package com.anotherstar.slashblade.common.entity;
 
 import java.util.List;
 
-import com.anotherstar.common.LoliPickaxe;
 import com.anotherstar.common.config.ConfigLoader;
 import com.anotherstar.util.LoliPickaxeUtil;
 
@@ -18,12 +17,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.Optional;
-import net.minecraftforge.fml.common.Optional.Interface;
 
-@Optional.InterfaceList(value = {
-		@Interface(iface = "com.anotherstar.common.config.ConfigLoader", modid = LoliPickaxe.MODID),
-		@Interface(iface = "com.anotherstar.util.LoliPickaxeUtil", modid = LoliPickaxe.MODID) })
 public class EntityLoliStormSwords extends EntityStormSwords {
 
 	public EntityLoliStormSwords(World world) {
@@ -85,8 +79,8 @@ public class EntityLoliStormSwords extends EntityStormSwords {
 					continue;
 			if (entity1.canBeCollidedWith()) {
 				f1 = 0.3F;
-				AxisAlignedBB axisalignedbb1 = entity1.getEntityBoundingBox().grow((double) f1, (double) f1,
-						(double) f1);
+				AxisAlignedBB axisalignedbb1 = entity1.getEntityBoundingBox().grow(f1, f1,
+						f1);
 				RayTraceResult movingobjectposition1 = axisalignedbb1.calculateIntercept(Vec3d1, Vec3d);
 				if (movingobjectposition1 != null) {
 					double d1 = Vec3d1.distanceTo(movingobjectposition1.hitVec);

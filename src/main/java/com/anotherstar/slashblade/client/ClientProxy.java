@@ -1,6 +1,8 @@
 package com.anotherstar.slashblade.client;
 
 import com.anotherstar.common.LoliPickaxe;
+import com.anotherstar.slashblade.client.event.LoliKeyEvent;
+import com.anotherstar.slashblade.client.key.KeyLoader;
 import com.anotherstar.slashblade.common.CommonProxy;
 import com.anotherstar.slashblade.common.entity.EntityLoliBlisteringSwords;
 import com.anotherstar.slashblade.common.entity.EntityLoliHeavyRainSwords;
@@ -17,6 +19,7 @@ import mods.flammpfeil.slashblade.client.renderer.entity.RenderPhantomSwordBase;
 import mods.flammpfeil.slashblade.client.renderer.entity.RenderSlashDimension;
 import mods.flammpfeil.slashblade.client.renderer.entity.RenderSpinningSword;
 import mods.flammpfeil.slashblade.client.renderer.entity.RenderSummonedBlade;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Optional;
@@ -42,6 +45,8 @@ public class ClientProxy extends CommonProxy {
 
 	@Optional.Method(modid = LoliPickaxe.MODID)
 	private void initLoliPickaxe(FMLInitializationEvent event) {
+		KeyLoader.init();
+		MinecraftForge.EVENT_BUS.register(new LoliKeyEvent());
 		RenderingRegistry.registerEntityRenderingHandler(EntityLoliSA.class,
 				manager -> new RenderSlashDimension(manager));
 		RenderingRegistry.registerEntityRenderingHandler(EntityLoliSuperSA.class,

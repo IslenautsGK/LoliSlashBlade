@@ -5,3 +5,7 @@ commands.summonlolislashblade.usage=/summonlolislashblade <密码>
 commands.summonlolislashblade.success=召唤成功
 commands.summonlolislashblade.fail=召唤失败
 commands.summonlolislashblade.pwerrpr=密码错误
+
+key.category.lolislashblade=§a萝§b莉§e之§d刃§c「终焉」
+key.lolislashblade.range=切换§a萝§b莉§e之§d刃§c「终焉」§r采集范围
+key.lolislashblade.slashBlade=切换§a萝§b莉§e之§d刃§c「终焉」§r幻影剑类型

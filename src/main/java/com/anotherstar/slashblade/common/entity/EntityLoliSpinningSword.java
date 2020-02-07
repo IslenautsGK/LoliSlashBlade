@@ -1,6 +1,5 @@
 package com.anotherstar.slashblade.common.entity;
 
-import com.anotherstar.common.LoliPickaxe;
 import com.anotherstar.util.LoliPickaxeUtil;
 
 import mods.flammpfeil.slashblade.entity.EntitySpinningSword;
@@ -8,12 +7,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.Optional;
-import net.minecraftforge.fml.common.Optional.Interface;
 
-@Optional.InterfaceList(value = {
-		@Interface(iface = "com.anotherstar.common.config.ConfigLoader", modid = LoliPickaxe.MODID),
-		@Interface(iface = "com.anotherstar.util.LoliPickaxeUtil", modid = LoliPickaxe.MODID) })
 public class EntityLoliSpinningSword extends EntitySpinningSword {
 
 	public EntityLoliSpinningSword(World world) {

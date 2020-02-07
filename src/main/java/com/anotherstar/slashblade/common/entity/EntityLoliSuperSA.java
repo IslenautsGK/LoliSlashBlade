@@ -3,7 +3,6 @@ package com.anotherstar.slashblade.common.entity;
 import java.util.EnumSet;
 import java.util.List;
 
-import com.anotherstar.common.LoliPickaxe;
 import com.anotherstar.common.config.ConfigLoader;
 import com.anotherstar.util.LoliPickaxeUtil;
 
@@ -31,12 +30,7 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.Optional;
-import net.minecraftforge.fml.common.Optional.Interface;
 
-@Optional.InterfaceList(value = {
-		@Interface(iface = "com.anotherstar.common.config.ConfigLoader", modid = LoliPickaxe.MODID),
-		@Interface(iface = "com.anotherstar.util.LoliPickaxeUtil", modid = LoliPickaxe.MODID) })
 public class EntityLoliSuperSA extends EntityJudgmentCutManager {
 
 	public EntityLoliSuperSA(World world) {
@@ -91,10 +85,10 @@ public class EntityLoliSuperSA extends EntityJudgmentCutManager {
 						double d2 = player.getRNG().nextGaussian() * 0.2D;
 						double d3 = 16.0D;
 						this.world.spawnParticle(EnumParticleTypes.SPELL_WITCH,
-								player.posX + (double) (player.getRNG().nextFloat() * player.width * 2.0F)
-										- (double) player.width - d0 * d3,
-								player.posY, player.posZ + (double) (player.getRNG().nextFloat() * player.width * 2.0F)
-										- (double) player.width - d2 * d3,
+								player.posX + player.getRNG().nextFloat() * player.width * 2.0F
+										- player.width - d0 * d3,
+								player.posY, player.posZ + player.getRNG().nextFloat() * player.width * 2.0F
+										- player.width - d2 * d3,
 								d0, d1, d2);
 					}
 					player.playSound(SoundEvents.ENTITY_BLAZE_HURT, 1.0F, 1.0F);
@@ -123,9 +117,9 @@ public class EntityLoliSuperSA extends EntityJudgmentCutManager {
 							StunManager.setFreeze((EntityLivingBase) curEntity, stanTicks);
 							for (int i = 0; i < 5; i++) {
 								this.world.spawnParticle(EnumParticleTypes.PORTAL,
-										curEntity.posX + (this.rand.nextDouble() - 0.5D) * (double) curEntity.width,
-										curEntity.posY + this.rand.nextDouble() * (double) curEntity.height - 0.25D,
-										curEntity.posZ + (this.rand.nextDouble() - 0.5D) * (double) curEntity.width,
+										curEntity.posX + (this.rand.nextDouble() - 0.5D) * curEntity.width,
+										curEntity.posY + this.rand.nextDouble() * curEntity.height - 0.25D,
+										curEntity.posZ + (this.rand.nextDouble() - 0.5D) * curEntity.width,
 										(this.rand.nextDouble() - 0.5D) * 2.0D, -this.rand.nextDouble(),
 										(this.rand.nextDouble() - 0.5D) * 2.0D);
 							}
@@ -166,7 +160,7 @@ public class EntityLoliSuperSA extends EntityJudgmentCutManager {
 								float motionY = -MathHelper.sin(fPitDtoR) * fYVecOfst;
 								float motionZ = MathHelper.cos(fYawDtoR) * MathHelper.cos(fPitDtoR) * fYVecOfst * 2;
 								entityDrive.setLocationAndAngles(curEntity.posX - motionX,
-										curEntity.posY + (double) curEntity.getEyeHeight() / 2D - motionY,
+										curEntity.posY + curEntity.getEyeHeight() / 2D - motionY,
 										curEntity.posZ - motionZ, rotationYaw, rotationPitch);
 								entityDrive.setDriveVector(fYVecOfst);
 								entityDrive.setLifeTime(8);

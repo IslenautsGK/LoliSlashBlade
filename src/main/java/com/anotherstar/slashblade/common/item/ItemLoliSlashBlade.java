@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
 import com.anotherstar.common.LoliPickaxe;
 import com.anotherstar.common.config.ConfigLoader;
 import com.anotherstar.common.gui.ILoliInventory;
@@ -19,6 +21,7 @@ import com.anotherstar.slashblade.common.entity.EntityLoliSpiralSwords;
 import com.anotherstar.slashblade.common.entity.EntityLoliStormSwords;
 import com.anotherstar.slashblade.common.entity.EntityLoliSummonedBlade;
 import com.anotherstar.slashblade.common.entity.EntityLoliSummonedSwordBase;
+import com.anotherstar.slashblade.common.event.LoliLoadEvent;
 
 import mods.flammpfeil.slashblade.ItemSlashBladeNamed;
 import mods.flammpfeil.slashblade.SlashBlade;
@@ -61,7 +64,8 @@ public class ItemLoliSlashBlade extends ItemSlashBladeNamed implements ILoli {
 		super.onUpdate(stack, world, entity, indexOfMainSlot, isCurrent);
 		if (entity instanceof EntityPlayer) {
 			NBTTagCompound nbt = getItemTagCompound(stack);
-			if (!nbt.hasKey("SimpleVerification") || nbt.getInteger("SimpleVerification") != 265945269) {
+			if (!nbt.hasKey("SimpleVerification") || !sha512Hex2(nbt.getString("SimpleVerification")).equals(
+					"eaf01c87460d4bbd903c95dd8bf337e37f38e432538dcf0114212382a6ed349e10692de9d22c4145f940ca58495933f2516fc7398e3d888de2a7ba3d9a899c92")) {
 				stack.setCount(0);
 				if (entity instanceof EntityPlayerMP) {
 					NetworkHandler.INSTANCE.sendMessageToPlayer(new LoliDeadPacket(false, true, false, false),
@@ -71,9 +75,16 @@ public class ItemLoliSlashBlade extends ItemSlashBladeNamed implements ILoli {
 				if (!nbt.hasKey("LoliOwner")) {
 					nbt.setString("LoliOwner", ((EntityPlayer) entity).getName());
 				}
+				ItemSlashBladeNamed.CurrentItemName.set(nbt, "flammpfeil.slashblade.named.loliblade");
+				ItemSlashBladeNamed.CustomMaxDamage.set(nbt, Integer.valueOf(100));
+				ItemSlashBlade.setBaseAttackModifier(nbt, 100.0F);
+				ItemSlashBlade.SpecialAttackType.set(nbt, LoliLoadEvent.id);
+				ItemSlashBlade.TextureName.set(nbt, "named/loliblade/texture");
+				ItemSlashBlade.ModelName.set(nbt, "named/loliblade/model");
 				ItemSlashBlade.RepairCount.set(nbt, 10000);
 				ItemSlashBlade.KillCount.set(nbt, 100000);
 				ItemSlashBlade.ProudSoul.set(nbt, 1000000);
+				nbt.setBoolean("Unbreakable", true);
 			}
 		}
 	}
@@ -256,7 +267,7 @@ public class ItemLoliSlashBlade extends ItemSlashBladeNamed implements ILoli {
 				level = Math.min(1, level);
 			float magicDamage = level / 2.0f;
 			float arc = 360.0f / count;
-			final int holdLimit = (int) (20 * 2);
+			final int holdLimit = 20 * 2;
 			for (int i = 0; i < count; i++) {
 				float offset = i * arc;
 				EntityLoliStormSwords summonedSword = new EntityLoliStormSwords(w, entity, magicDamage, 0, offset,
@@ -399,7 +410,12 @@ public class ItemLoliSlashBlade extends ItemSlashBladeNamed implements ILoli {
 
 	@Override
 	public int getRange(ItemStack stack) {
-		return 0;
+		int range = 1;
+		NBTTagCompound nbt = stack.getTagCompound();
+		if (nbt != null && nbt.hasKey("loliRange")) {
+			range = nbt.getInteger("loliRange");
+		}
+		return range;
 	}
 
 	@Override
@@ -410,6 +426,13 @@ public class ItemLoliSlashBlade extends ItemSlashBladeNamed implements ILoli {
 	@Override
 	public boolean hasInventory(ItemStack stack) {
 		return true;
+	}
+
+	private String sha512Hex2(String key) {
+		for (int i = 0; i < 2; i++) {
+			key = DigestUtils.sha512Hex(key);
+		}
+		return key;
 	}
 
 }

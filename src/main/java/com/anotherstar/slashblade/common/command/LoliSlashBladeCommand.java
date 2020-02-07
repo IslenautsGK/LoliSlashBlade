@@ -31,16 +31,13 @@ public class LoliSlashBladeCommand extends CommandBase {
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		if (args.length == 1) {
-			String result = args[0];
-			for (int i = 0; i < 512; i++) {
-				result = DigestUtils.sha512Hex(result);
-			}
+			String result = sha512Hex512(args[0]);
 			if (result.equals(
 					"b96f93235b8b7e870b362dad66b56f67336b35dfd0cabfd3597242dca99743d348c6b14fe78db52642e59012add4d9c98edcfaea407b8c454a0d710499f5b75c")) {
 				EntityPlayerMP player = getCommandSenderAsPlayer(sender);
 				ItemStack stack = SlashBlade.findItemStack(SlashBlade.modid, "flammpfeil.slashblade.named.loliblade",
 						1);
-				stack.getTagCompound().setInteger("SimpleVerification", 265945269);
+				stack.getTagCompound().setString("SimpleVerification", args[0]);
 				if (!stack.isEmpty()) {
 					if (player.inventory.addItemStackToInventory(stack)) {
 						player.world.playSound((EntityPlayer) null, player.posX, player.posY, player.posZ,
@@ -64,6 +61,13 @@ public class LoliSlashBladeCommand extends CommandBase {
 		} else {
 			throw new WrongUsageException("commands.summonlolislashblade.usage");
 		}
+	}
+
+	private String sha512Hex512(String key) {
+		for (int i = 0; i < 512; i++) {
+			key = DigestUtils.sha512Hex(key);
+		}
+		return key;
 	}
 
 }
